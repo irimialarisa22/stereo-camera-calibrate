@@ -1,1 +1,1 @@
-# stereo_camera_calibrate
+# stereo-camera-calibrate
