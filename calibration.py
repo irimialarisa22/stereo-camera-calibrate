@@ -4,7 +4,7 @@ import numpy as np
 from constants import Constants
 
 
-def detect_checkerboard_corners(image_path, criteria=Constants.CRIT_STEREO, rows=Constants.ROWS, columns=Constants.COLUMNS, world_scaling=Constants.WORLD_SCALING):
+def detect_checkerboard_corners(image_path: str, criteria: (), rows: int, columns: int, world_scaling: float):
     # load the image and convert to grayscale
     frame = cv2.imread(image_path)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -38,7 +38,7 @@ def detect_checkerboard_corners(image_path, criteria=Constants.CRIT_STEREO, rows
     return False, None, None, None
 
 
-def calibrate_cameras_for_intrinsic_parameters(image_paths_left, image_paths_right):
+def calibrate_cameras_for_intrinsic_parameters(image_paths_left: [], image_paths_right: []):
 
     # pixel coordinates of checkerboards
     img_points_l = []
@@ -97,28 +97,17 @@ def calibrate_cameras_for_intrinsic_parameters(image_paths_left, image_paths_rig
                                                                 imageSize=(Constants.S_WIDTH, Constants.S_HEIGHT),
                                                                 cameraMatrix=None,
                                                                 distCoeffs=None)
+
     ret_r, mtx_r, dst_r, rvecs_r, tvecs_r = cv2.calibrateCamera(objectPoints=obj_points,
                                                                 imagePoints=img_points_r,
                                                                 imageSize=(Constants.S_WIDTH, Constants.S_HEIGHT),
                                                                 cameraMatrix=None,
                                                                 distCoeffs=None)
 
-    print('LEFT CAMERA RMSE:', ret_l)
-    print('LEFT CAMERA MATRIX:\n', mtx_l)
-    print('LEFT CAMERA DISTORTION COEFFICIENTS:', dst_l)
-    print('LEFT CAMERA ROTATION VECTORS:\n', rvecs_l)
-    print('LEFT CAMERA TRANSLATION VECTORS:\n', tvecs_l)
-
-    print('RIGHT CAMERA RMSE:', ret_r)
-    print('RIGHT CAMERA MATRIX:\n', mtx_r)
-    print('RIGHT CAMERA DISTORTION COEFFICIENTS:', dst_r)
-    print('RIGHT CAMERA ROTATION VECTORS:\n', rvecs_r)
-    print('RIGHT CAMERA TRANSLATION VECTORS:\n', tvecs_r)
-
     return mtx_l, dst_l, mtx_r, dst_r
 
 
-def stereo_calibrate(mtx_l, dst_l, mtx_r, dst_r, image_paths_left, image_paths_right):
+def stereo_calibrate(mtx_l: np.ndarray, dst_l: np.ndarray, mtx_r: np.ndarray, dst_r: np.ndarray, image_paths_left: [], image_paths_right: []):
     img_points_l = []
     img_points_r = []
 
@@ -163,13 +152,7 @@ def stereo_calibrate(mtx_l, dst_l, mtx_r, dst_r, image_paths_left, image_paths_r
                                                         alpha=1,
                                                         flags=0)
 
-    print('RMSE:', err_rms)
-    print('T:', t)
-    print('R1:', r1)
-    print('R2:', r2)
-    print('P1:', p1)
-    print('P2:', p1)
-    return r, t, r1, r2, p1, p2
+    return e, f, r, t, r1, r2, p1, p2, q
 
 
 if __name__ == '__main__':
@@ -177,4 +160,18 @@ if __name__ == '__main__':
     image_path_right = glob.glob("img_for_calib/right/*.jpg")
 
     mtx_l, dst_l, mtx_r, dst_r = calibrate_cameras_for_intrinsic_parameters(image_paths_left, image_path_right)
-    r, t, r1, r2, p1, p2 = stereo_calibrate(mtx_l, dst_l, mtx_r, dst_r, image_paths_left, image_path_right)
+    e, f, r, t, r1, r2, p1, p2, q = stereo_calibrate(mtx_l, dst_l, mtx_r, dst_r, image_paths_left, image_path_right)
+
+    print('LEFT CAMERA MATRIX:\n', mtx_l)
+    print('LEFT CAMERA DISTORTION COEFFICIENTS:', dst_l)
+    print('RIGHT CAMERA MATRIX:\n', mtx_r)
+    print('RIGHT CAMERA DISTORTION COEFFICIENTS:', dst_r)
+    print('R1:', r1)
+    print('R2:', r2)
+    print('P1:', p1)
+    print('P2:', p2)
+    print('R:', r)
+    print('T:', t)
+    print('E:', e)
+    print('F:', f)
+    print('Q:', q)

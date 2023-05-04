@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from constants import Constants
 
 
 def measure_dist(stereo: {},
@@ -44,3 +45,27 @@ def measure_dist(stereo: {},
     xy2 = cv2.convertPointsFromHomogeneous(xy2.T).flatten()
 
     return np.linalg.norm(xy1 - xy2)
+
+
+if __name__ == '__main__':
+    fs = cv2.FileStorage('sol.yml', cv2.FILE_STORAGE_READ)
+
+    sol = {'M1': fs.getNode('M1').mat(),
+           'M2': fs.getNode('M2').mat(),
+           'D1': fs.getNode('D1').mat(),
+           'D2': fs.getNode('D2').mat(),
+           'R1': fs.getNode('R1').mat(),
+           'R2': fs.getNode('R2').mat(),
+           'P1': fs.getNode('P1').mat(),
+           'P2': fs.getNode('P2').mat(),
+           'R': fs.getNode('R').mat(),
+           'T': fs.getNode('T').mat(),
+           'E': fs.getNode('E').mat(),
+           'F': fs.getNode('F').mat(),
+           'Q': fs.getNode('Q').mat(),
+           'SZ': (int(Constants.S_WIDTH), int(Constants.S_HEIGHT))}
+    fs.release()
+
+
+    dist = measure_dist(sol, (1239.6902, 434.91632), (649.37585, 833.39636), (1675.2928, 175.65314), (997.4407, 634.50916))
+    print(dist)
